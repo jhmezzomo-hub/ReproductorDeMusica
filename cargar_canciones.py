@@ -1,7 +1,7 @@
 import json
 import cloudinary
 import cloudinary.uploader
-from genero import obtener_genero
+from obtener_info import obtener_genero
 
 cloudinary.config(
         cloud_name = "JHMezzo",
@@ -9,13 +9,13 @@ cloudinary.config(
         api_secret = "frai2iQ4fJMvIXiSNU4rXqBgYOg"
     )
 
-def cargar_canciones(nombre, autor, ruta):
+def cargar_canciones(nombre, autor, ruta, genero=None):
     try:
         info = {
-            nombre : nombre,
-            autor : autor,
-            genre : obtener_genero,
-            url : cloudinary.uploader.upload(ruta, resource_type = "video")
+            "nombre" : nombre,
+            "autor" : autor,
+            "genero" : genero,
+            "url" : cloudinary.uploader.upload(ruta, resource_type = "video")
         }
         with open("Infos.json", "w+") as f:
             json.dump(info, f, indent=4)
