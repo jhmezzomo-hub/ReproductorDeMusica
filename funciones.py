@@ -3,10 +3,10 @@ import ttkbootstrap as tb
 def reproducir():
     pass
 
-def frenar():
+def pausar():
     pass
 
-def terminar():
+def frenar():
     pass
 
 def buscar():
