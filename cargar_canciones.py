@@ -22,3 +22,6 @@ def cargar_canciones(nombre, autor, ruta, genero=None):
     except Exception as e:
         print(e)
         pass
+
+def descargar_canciones():
+    pass

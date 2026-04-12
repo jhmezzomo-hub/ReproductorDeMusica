@@ -1,13 +1,18 @@
 import ttkbootstrap as tb
 from PIL import Image
 from obtener_info import obtener_info
+from pathlib import Path
 
-def cargar_imagen(ancho, alto):
+def cargar_imagen():
     imagen = obtener_info
     try:
-        Image.open(imagen[3])
-        new_imagen = imagen.resize((ancho, alto))
+        new_imagen = Image.open(imagen[3])
+        new_imagen = imagen.resize((300, 300))
         return new_imagen
     except Exception as e:
         print(f"No se pudo cargar la imagen: {e}")
-        return
+        folder =  Path(__file__).parent
+        pred = folder / "album_predeterminado.png"
+        pred = Image.open(pred)
+        album = pred.resize((300,300))
+        return album
