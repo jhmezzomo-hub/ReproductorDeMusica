@@ -1,5 +1,6 @@
 import ttkbootstrap as tb
 from pathlib import Path
+from funciones import cargar_vista
 
 labels_resultados = []
 
@@ -15,10 +16,15 @@ def buscar_similitudes(buscador, panel):
     try:
         with open("canciones_disponibles.txt", "r") as e:
             for i in e:
-                if i in entrada:
+                if entrada in i:
                     print(f"Encontre una coincidencia: {i}")
                     opcion = tb.Label(panel, text=i, bootstyle="warning", font=("Roboto", 13, "bold"), cursor="hand2")
                     opcion.pack(side="top", fill="x", padx=5, pady=5)
+
+
+
+
+
                     labels_resultados.append(opcion)
 
     except Exception as error:
