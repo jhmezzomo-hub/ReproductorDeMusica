@@ -11,6 +11,3 @@ def frenar():
 
 def buscar():
     pass
-
-def cargar_vista(panel):
-    pass

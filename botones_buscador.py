@@ -1,6 +1,6 @@
 import ttkbootstrap as tb
 from pathlib import Path
-from funciones import cargar_vista
+from btotones_musica import cargar_vista
 
 labels_resultados = []
 
@@ -21,9 +21,7 @@ def buscar_similitudes(buscador, panel):
                     opcion = tb.Label(panel, text=i, bootstyle="warning", font=("Roboto", 13, "bold"), cursor="hand2")
                     opcion.pack(side="top", fill="x", padx=5, pady=5)
 
-
-
-
+                    opcion.bind("<Button-1>", lambda nombre=i: cargar_vista(nombre))
 
                     labels_resultados.append(opcion)
 
