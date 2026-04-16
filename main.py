@@ -16,6 +16,7 @@ def main():
     image = imagen(vista, imagen="album_predeterminado.png")
 
     barra_busca = barra_busqueda(busca)
+    previa = vista_previa(busca)
 
     root.mainloop()
 

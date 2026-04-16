@@ -1,23 +1,35 @@
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
+import os
 
-client_id = ""
-client_secret = ""
+def obtener_info(ruta):
+    nombre_arch = os.path.basename(ruta)
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="e36be92f919643de85a574a0be1b925c",
-                                                        client_secret="5f3bb9180897457d92c0478f3442ad57"))
+    metadata = {
+        "titulo" : nombre_arch,
+        "artista" : "Artista Desconocido",
+        "caratula" : None
+        }
+    
+    if ruta == "default":
+        return metadata
 
-def obtener_info(nombre):
-    resultado = sp.search(q=nombre, type="track", limit=1)
-    if resultado["tracks"]["items"]:
-        cancion_encontrada = resultado["tracks"]["items"][0]
+    try: 
+        audio = MP3(ruta, ID3=ID3)
+        
+        if "TIT2" in audio:
+            metadata["titulo"] = audio["TIT2"].text[0]
 
-        titulo = cancion_encontrada["name"]
-        artista = cancion_encontrada["artists"][0]["name"]
-        album = cancion_encontrada["album"]["name"]
+        if "TPE1" in audio:
+            metadata["artista"] = audio["TPE1"].text[0]
 
-        caratula_url = cancion_encontrada["album"]["images"][0]["url"]
+        for etiqueta in audio.keys():
+            if etiqueta.startswith("APIC:"):
+                metadata["caratula"] = audio[etiqueta].data
+                break
 
-        return titulo, artista, album, caratula_url
-    else:
-        print("Cancion no encntrada")
+    except Exception as e:
+        print(f"Error al obtener información de {ruta}: {e}")
+
+    return metadata
+    

@@ -4,8 +4,8 @@ from obtener_info import obtener_info
 from pathlib import Path
 
 def cargar_imagen(nombre):
-    imagen = obtener_info(nombre)
     try:
+        imagen = obtener_info(nombre)
         new_imagen = Image.open(imagen[3])
         new_imagen = imagen.resize((300, 300))
         return new_imagen
