@@ -8,7 +8,10 @@ import os
 reproductor = Reproductor()
 
 def play(panel):
-    play_bt = tb.Button(panel, text="Play ", style="success.TButton",command=lambda: reproductor.reproducir(cargar_vista(panel)))
+    def reproducir_cancion():
+        titulo, artista, img, nombre = cargar_vista(panel)
+        reproductor.reproducir(nombre)
+    play_bt = tb.Button(panel, text="Play ", style="success.TButton",command=reproducir_cancion)
     play_bt.grid(column=2, row=3, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return play_bt
 
