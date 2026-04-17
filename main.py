@@ -13,9 +13,9 @@ def main():
     inciar = play(vista)
     pausa = pause(vista)
     frenar = stop(vista)
-    image = imagen(vista, imagen="album_predeterminado.png")
+    primero = cargar_vista(vista)
 
-    barra_busca = barra_busqueda(busca)
+    barra_busca = barra_busqueda(busca, vista)
     previa = vista_previa(busca)
 
     root.mainloop()

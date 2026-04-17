@@ -12,6 +12,7 @@ def obtener_info(ruta):
         }
     
     if ruta == "default":
+        metadata["titulo"] = "Cancion Desconocida"
         return metadata
 
     try: 

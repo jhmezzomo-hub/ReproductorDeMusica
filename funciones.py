@@ -20,3 +20,6 @@ class Reproductor:
     def frenar(self):
         self.player.stop()
         print("Detenido")
+
+    def obtener_posicion(self):
+        return self.player.get_position()

@@ -4,8 +4,9 @@ from btotones_musica import cargar_vista
 from abrir_directorio import nombres_canciones_guardadas, cargar_directorio, canciones_guardadas
 
 labels_resultados = []
+ruta = ""
 
-def buscar_similitudes(buscador, panel):
+def buscar_similitudes(buscador, panel_resultados, panel_musica):
     for label in labels_resultados:
         label.destroy()
     labels_resultados.clear()
@@ -15,25 +16,24 @@ def buscar_similitudes(buscador, panel):
         return
 
     try:
-        for i in canciones_guardadas:
-            for e in nombres_canciones_guardadas:
-                if entrada in i:
-                    print(f"Encontre una coincidencia: {i}")
-                    opcion = tb.Label(panel, text=e, bootstyle="warning", font=("Roboto", 13, "bold"), cursor="hand2")
-                    opcion.pack(side="top", fill="x", padx=5, pady=5)
+        # Usamos zip para recorrer ruta y nombre al mismo tiempo
+        for ruta_completa, nombre_corto in zip(canciones_guardadas, nombres_canciones_guardadas):
+            if entrada in nombre_corto.lower():
+                opcion = tb.Label(panel_resultados, text=nombre_corto, bootstyle="warning", font=("Roboto", 13, "bold"), cursor="hand2")
+                opcion.pack(side="top", fill="x", padx=5, pady=5)
 
-                    opcion.bind("<Button-1>", lambda nombre=i: cargar_vista(nombre))
+                # El primer argumento de la lambda debe ser el evento del clic
+                opcion.bind("<Button-1>", lambda e, r=ruta_completa: cargar_vista(panel_musica, r))
 
-                    labels_resultados.append(opcion)
-
+                labels_resultados.append(opcion)
     except Exception as error:
         print(error)
 
-def barra_busqueda(panel):
+def barra_busqueda(panel, panel_musica):
     buscador = tb.Entry(panel, bootstyle="info", textvariable="text")
     buscador.pack(side="top", fill="x", padx=5, pady=5)
 
-    buscador.bind("<KeyRelease>", lambda e: buscar_similitudes(buscador, panel))
+    buscador.bind("<KeyRelease>", lambda e: buscar_similitudes(buscador, panel, panel_musica))
     return buscador
 
 def vista_previa(panel):
