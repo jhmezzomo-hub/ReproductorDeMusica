@@ -8,6 +8,9 @@ import os
 reproductor = Reproductor()
 cancion_actual = None
 barra_progreso = None
+current_title_label = None
+current_artist_label = None
+current_image_canvas = None
 
 def actualizar_barra(panel):
     if barra_progreso:
@@ -35,8 +38,16 @@ def stop(panel):
     frenar_bt.grid(column=0, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return frenar_bt
 
-def cargar_vista(panel,nombre="default"):
-    global barra_progreso, cancion_actual
+def cargar_vista(panel, nombre="default"):
+    global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
+
+    # Destruir los widgets anteriores si existen
+    if current_title_label:
+        current_title_label.destroy()
+    if current_artist_label:
+        current_artist_label.destroy()
+    if current_image_canvas:
+        current_image_canvas.destroy()
     cancion_actual = nombre if nombre != "default" else None
     print(f"Cargando vista para: {nombre}")
     info = obtener_info(nombre)
@@ -45,17 +56,20 @@ def cargar_vista(panel,nombre="default"):
 
     if titulo.endswith(".mp3"):
         titulo = os.path.splitext(titulo)[0] 
-    title = tb.Label(panel, text=titulo, bootstyle="light", font=("Roboto", 16, "bold"))
-    marquesina( title, titulo)
-    title. grid(column=0, row=2, columnspan=3, pady=(20,5), padx=5)
+    current_title_label = tb.Label(panel, text=titulo, bootstyle="light", font=("Roboto", 16, "bold"))
+    marquesina(current_title_label, titulo)
+    current_title_label.grid(column=0, row=2, columnspan=3, pady=(20,5), padx=5)
 
-    artist = tb.Label(panel, text=artista, bootstyle="info", font=("Roboto", 12))
-    artist.grid(column=0, row=3, columnspan=2, pady=5, padx=5)
+    current_artist_label = tb.Label(panel, text=artista, bootstyle="info", font=("Roboto", 12))
+    current_artist_label.grid(column=0, row=3, columnspan=3, pady=5, padx=5)
 
-    if not barra_progreso:
+    if not barra_progreso: # Crear la barra de progreso solo si no existe
         barra_progreso = tb.Progressbar(panel, bootstyle="success-striped", maximum=100, value=0)
         barra_progreso.grid(column=0, row=1, columnspan=3, sticky="ew", padx=10, pady=20)
+    else:
+        # Reiniciar el valor de la barra de progreso para la nueva canción
+        barra_progreso['value'] = 0
 
-    img = imagen(panel, nombre)
+    current_image_canvas = imagen(panel, nombre)
 
-    return title, artist, img, nombre
+    return current_title_label, current_artist_label, current_image_canvas, nombre

@@ -16,7 +16,7 @@ def main():
     primero = cargar_vista(vista)
 
     barra_busca = barra_busqueda(busca, vista)
-    previa = vista_previa(busca)
+    previa = vista_previa(busca, vista)
 
     root.mainloop()
 
