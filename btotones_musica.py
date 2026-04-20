@@ -12,6 +12,14 @@ current_title_label = None
 current_artist_label = None
 current_image_canvas = None
 
+def alternar_modo_compacto(compacto):
+    """Oculta o muestra la imagen para que el panel se achique."""
+    if current_image_canvas:
+        if compacto:
+            current_image_canvas.grid_remove()
+        else:
+            current_image_canvas.grid()
+
 def actualizar_barra(panel):
     if barra_progreso:
         posicion = reproductor.obtener_posicion()
