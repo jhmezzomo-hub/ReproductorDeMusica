@@ -13,6 +13,8 @@ def main():
     inciar = play(vista)
     pausa = pause(vista)
     frenar = stop(vista)
+    next = siguiente(vista)
+    previa = anterior(vista)
     primero = cargar_vista(vista)
 
     barra_busca = barra_busqueda(busca, vista)

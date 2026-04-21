@@ -33,18 +33,54 @@ def play(panel):
             reproductor.reproducir(cancion_actual)
         actualizar_barra(panel)
     play_bt = tb.Button(panel, text="Play ", style="success.TButton",command=reproducir_cancion)
-    play_bt.grid(column=2, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    play_bt.grid(column=3, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return play_bt
 
 def pause(panel):
     pause_bt = tb.Button(panel, text="Pause", style="secondary.TButton", command=reproductor.pausar)
-    pause_bt.grid(column=1, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    pause_bt.grid(column=2, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return pause_bt
 
 def stop(panel):
     frenar_bt = tb.Button(panel, text="Stop", style="primary.TButton", command=reproductor.frenar)
-    frenar_bt.grid(column=0, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    frenar_bt.grid(column=1, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return frenar_bt
+
+def siguiente(panel):
+    from abrir_directorio import canciones_guardadas
+    def ir_siguiente():
+        global cancion_actual
+        if not canciones_guardadas: return
+        try:
+            indice = canciones_guardadas.index(cancion_actual)
+            sig_indice = (indice + 1) % len(canciones_guardadas)
+        except (ValueError, TypeError):
+            sig_indice = 0
+        nueva_ruta = canciones_guardadas[sig_indice]
+        cargar_vista(panel, nueva_ruta)
+        reproductor.reproducir(nueva_ruta)
+        actualizar_barra(panel)
+    next_bt = tb.Button(panel, text="▶▶", style="info.TButton", command=ir_siguiente)
+    next_bt.grid(column=4, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    return next_bt
+
+def anterior(panel):
+    from abrir_directorio import canciones_guardadas
+    def ir_anterior():
+        global cancion_actual
+        if not canciones_guardadas: return
+        try:
+            indice = canciones_guardadas.index(cancion_actual)
+            ant_indice = (indice - 1) % len(canciones_guardadas)
+        except (ValueError, TypeError):
+            ant_indice = len(canciones_guardadas)
+        nueva_ruta = canciones_guardadas[ant_indice]
+        cargar_vista(panel, nueva_ruta)
+        reproductor.reproducir(nueva_ruta)
+        actualizar_barra(panel)
+    prev_bt = tb.Button(panel, text="◀◀", style="info.TButton", command=ir_anterior)
+    prev_bt.grid(column=0, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    return prev_bt
 
 def cargar_vista(panel, nombre="default"):
     global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
@@ -62,18 +98,19 @@ def cargar_vista(panel, nombre="default"):
     titulo = info["titulo"]
     artista = info["artista"]
 
-    if titulo.endswith(".mp3"):
+    if titulo.lower().endswith(".mp3"):
         titulo = os.path.splitext(titulo)[0] 
+
     current_title_label = tb.Label(panel, text=titulo, bootstyle="light", font=("Roboto", 16, "bold"))
     marquesina(current_title_label, titulo)
-    current_title_label.grid(column=0, row=2, columnspan=3, pady=(20,5), padx=5)
+    current_title_label.grid(column=0, row=2, columnspan=5, pady=(20,5), padx=5)
 
     current_artist_label = tb.Label(panel, text=artista, bootstyle="info", font=("Roboto", 12))
-    current_artist_label.grid(column=0, row=3, columnspan=3, pady=5, padx=5)
+    current_artist_label.grid(column=0, row=3, columnspan=5, pady=5, padx=5)
 
     if not barra_progreso: # Crear la barra de progreso solo si no existe
         barra_progreso = tb.Progressbar(panel, bootstyle="success-striped", maximum=100, value=0)
-        barra_progreso.grid(column=0, row=1, columnspan=3, sticky="ew", padx=10, pady=20)
+        barra_progreso.grid(column=0, row=1, columnspan=5, sticky="ew", padx=10, pady=20)
     else:
         # Reiniciar el valor de la barra de progreso para la nueva canción
         barra_progreso['value'] = 0

@@ -32,6 +32,6 @@ def imagen(panel, img_path):
     portada = ImageTk.PhotoImage(portada)
     img = tb.Canvas(panel, relief="raised", background="#FFFFFF", width=300, height=300, bd=10)
     img.create_image(0, 0, anchor="nw", image=portada)
-    img.grid(column=0, row=0, columnspan=3)
+    img.grid(column=0, row=0, columnspan=5)
     img.reference = portada
     return img
