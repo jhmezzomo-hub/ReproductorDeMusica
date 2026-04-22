@@ -14,8 +14,10 @@ barra_progreso = None
 current_title_label = None
 current_artist_label = None
 current_image_canvas = None
-aleatorio_usado = []
-estado = False
+estado_aleatorio = False
+estado_loop = False
+ale_tg = None
+lo_tg = None
 
 def alternar_modo_compacto(compacto):
     """Oculta o muestra la imagen para que el panel se achique."""
@@ -62,7 +64,7 @@ def siguiente(panel):
         if not canciones_guardadas: return
         else: playlist = canciones_guardadas
 
-        if estado == False:
+        if estado_aleatorio == False:
             try:
                 indice = playlist.index(cancion_actual)
                 sig_indice = (indice + 1) % len(playlist)
@@ -72,7 +74,7 @@ def siguiente(panel):
             cargar_vista(panel, nueva_ruta)
             reproductor.reproducir(nueva_ruta)
             actualizar_barra(panel)
-        elif estado:
+        elif estado_aleatorio:
             nueva_ruta = reproducir_aleatorio(cancion_actual)
             cargar_vista(panel, nueva_ruta)
             reproductor.reproducir(nueva_ruta)
@@ -86,13 +88,13 @@ def anterior(panel):
         global cancion_actual, cancion_anterior
         if not canciones_guardadas: return
         else: playlist = canciones_guardadas
-        if estado == False:
+        if estado_aleatorio == False:
             try:
                 indice = playlist.index(cancion_actual)
                 nueva_ruta = playlist[(indice - 1) % len(playlist)]
             except (ValueError, TypeError):
                 nueva_ruta = playlist[0]
-        elif estado:
+        elif estado_aleatorio:
             if cancion_anterior and cancion_anterior != cancion_actual:
                 nueva_ruta = cancion_anterior
             else:
@@ -115,27 +117,47 @@ def anterior(panel):
     return prev_bt
 
 def aleatorio(panel):
+    global ale_tg, estado_ale
+    estado_ale = tb.IntVar(value=estado_aleatorio)
     def inversion():
-        global estado, cancion_actual
+        global cancion_actual, estado_aleatorio, estado_loop, estado_lo
 
-        estado = not estado
+        estado_aleatorio = bool(estado_ale.get())
+
+        if estado_aleatorio:
+            estado_loop = False
+            if "estado_lo" in globals():
+                estado_lo.set(0)
+            reproducir_aleatorio(cancion_actual)
+    
+    color_inicial = "warning-round-toggle" 
+
+    aleatory = tb.Checkbutton(panel, text="⥬", variable=estado_ale, bootstyle=color_inicial, command=inversion)
+    aleatory.grid(column=2, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)
+    ale_tg = aleatory
+    return aleatory
+
+def loop(panel):
+    global lo_tg, estado_lo
+    estado_lo = tb.IntVar(value=estado_loop)
+    def invertir():
+        global cancion_actual, estado_aleatorio, estado_loop, estado_ale
+
+        estado = bool(estado_lo.get())
 
         if estado:
-            aleatory.config(style="warning.TButton")
-            reproducir_aleatorio(cancion_actual)
-        else:
-            aleatory.config(style="light.TButton")
-    
-    color_inicial = "warning.TButton" if estado else "light.TButton"
+            estado_aleatorio = False
+            if "estado_ale" in globals():
+                estado_ale.set(0)
 
-    aleatory = tb.Button(panel, text="⥬", style=color_inicial, command=inversion)
-    aleatory.grid(column=2, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)
-    return aleatory
+    loop_tg = tb.Checkbutton(panel, text="↺", variable=estado_lo, bootstyle="light-round-toggle", command=invertir)
+    loop_tg.grid(column=3, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)
+    lo_tg = loop_tg
+    return loop_tg
 
 def cargar_vista(panel, nombre="default"):
     global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
 
-    # Destruir los widgets anteriores si existen
     if current_title_label:
         current_title_label.destroy()
     if current_artist_label:

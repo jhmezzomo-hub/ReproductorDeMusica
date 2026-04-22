@@ -17,6 +17,7 @@ def main():
     previa = anterior(vista)
     primero = cargar_vista(vista)
     random = aleatorio(vista)
+    looper = loop(vista)
 
     barra_busca = barra_busqueda(busca, vista)
     previa = vista_previa(busca, vista)
