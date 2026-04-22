@@ -4,13 +4,18 @@ from cargar_imagen import imagen
 from obtener_info import obtener_info
 from marquesina import marquesina
 import os
+from abrir_directorio import canciones_guardadas
+from aleatorio import *
 
 reproductor = Reproductor()
+cancion_anterior = None
 cancion_actual = None
 barra_progreso = None
 current_title_label = None
 current_artist_label = None
 current_image_canvas = None
+aleatorio_usado = []
+estado = False
 
 def alternar_modo_compacto(compacto):
     """Oculta o muestra la imagen para que el panel se achique."""
@@ -28,10 +33,12 @@ def actualizar_barra(panel):
         panel.after(1000, lambda: actualizar_barra(panel))
 
 def play(panel):
+    global cancion_anterior
     def reproducir_cancion():
         if cancion_actual:
             reproductor.reproducir(cancion_actual)
         actualizar_barra(panel)
+    cancion_anterior = cancion_actual
     play_bt = tb.Button(panel, text="Play ", style="success.TButton",command=reproducir_cancion)
     play_bt.grid(column=3, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return play_bt
@@ -47,40 +54,83 @@ def stop(panel):
     return frenar_bt
 
 def siguiente(panel):
-    from abrir_directorio import canciones_guardadas
     def ir_siguiente():
-        global cancion_actual
+        global cancion_actual, cancion_anterior
+
+        cancion_anterior = cancion_actual
+
         if not canciones_guardadas: return
-        try:
-            indice = canciones_guardadas.index(cancion_actual)
-            sig_indice = (indice + 1) % len(canciones_guardadas)
-        except (ValueError, TypeError):
-            sig_indice = 0
-        nueva_ruta = canciones_guardadas[sig_indice]
-        cargar_vista(panel, nueva_ruta)
-        reproductor.reproducir(nueva_ruta)
-        actualizar_barra(panel)
+        else: playlist = canciones_guardadas
+
+        if estado == False:
+            try:
+                indice = playlist.index(cancion_actual)
+                sig_indice = (indice + 1) % len(playlist)
+            except (ValueError, TypeError):
+                sig_indice = 0
+            nueva_ruta = playlist[sig_indice]
+            cargar_vista(panel, nueva_ruta)
+            reproductor.reproducir(nueva_ruta)
+            actualizar_barra(panel)
+        elif estado:
+            nueva_ruta = reproducir_aleatorio(cancion_actual)
+            cargar_vista(panel, nueva_ruta)
+            reproductor.reproducir(nueva_ruta)
+            actualizar_barra(panel)
     next_bt = tb.Button(panel, text="▶▶", style="info.TButton", command=ir_siguiente)
     next_bt.grid(column=4, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return next_bt
 
 def anterior(panel):
-    from abrir_directorio import canciones_guardadas
     def ir_anterior():
-        global cancion_actual
+        global cancion_actual, cancion_anterior
         if not canciones_guardadas: return
-        try:
-            indice = canciones_guardadas.index(cancion_actual)
-            ant_indice = (indice - 1) % len(canciones_guardadas)
-        except (ValueError, TypeError):
-            ant_indice = len(canciones_guardadas)
-        nueva_ruta = canciones_guardadas[ant_indice]
-        cargar_vista(panel, nueva_ruta)
-        reproductor.reproducir(nueva_ruta)
-        actualizar_barra(panel)
+        else: playlist = canciones_guardadas
+        if estado == False:
+            try:
+                indice = playlist.index(cancion_actual)
+                nueva_ruta = playlist[(indice - 1) % len(playlist)]
+            except (ValueError, TypeError):
+                nueva_ruta = playlist[0]
+        elif estado:
+            if cancion_anterior and cancion_anterior != cancion_actual:
+                nueva_ruta = cancion_anterior
+            else:
+                try:
+                    indice = playlist.index(cancion_actual)
+                    nueva_ruta = playlist[(indice - 1) % len(playlist)]
+                except (ValueError, TypeError):
+                    nueva_ruta = playlist[0]
+        if nueva_ruta:
+            temporal = cancion_actual 
+            
+            cancion_actual = nueva_ruta
+            cargar_vista(panel, nueva_ruta)
+            reproductor.reproducir(nueva_ruta)
+            actualizar_barra(panel)
+            
+            cancion_anterior = temporal
     prev_bt = tb.Button(panel, text="◀◀", style="info.TButton", command=ir_anterior)
     prev_bt.grid(column=0, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return prev_bt
+
+def aleatorio(panel):
+    def inversion():
+        global estado, cancion_actual
+
+        estado = not estado
+
+        if estado:
+            aleatory.config(style="warning.TButton")
+            reproducir_aleatorio(cancion_actual)
+        else:
+            aleatory.config(style="light.TButton")
+    
+    color_inicial = "warning.TButton" if estado else "light.TButton"
+
+    aleatory = tb.Button(panel, text="⥬", style=color_inicial, command=inversion)
+    aleatory.grid(column=2, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)
+    return aleatory
 
 def cargar_vista(panel, nombre="default"):
     global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
