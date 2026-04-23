@@ -121,7 +121,7 @@ def opcion_playlist(panel, buscador_panel):
     lista_desplegable.grid(column=0, row=5, columnspan=2, sticky="nsew", padx=10, pady=10)
     
     if nombre_playlist:
-        lista_desplegable.current(0)
+        lista_desplegable.current(nombre_playlist.index("original"))
 
     btotones_musica.combo_playlist = lista_desplegable
     lista_desplegable.bind("<<ComboboxSelected>>", lambda e: vista_previa(buscador_panel, panel))

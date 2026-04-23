@@ -7,15 +7,13 @@ import json
 canciones_guardadas = []
 nombres_canciones_guardadas = []
 
-def get_cleaned_song_name(file_path):
-    """
-    Extrae y limpia el nombre de la canción de una ruta de archivo completa.
-    """
+def limpiar_nombre(file_path):
     nombre = os.path.splitext(os.path.basename(file_path))[0]
     # Limpieza: Quitar números al inicio, contenido entre () o [] y espacios extra
     nombre = re.sub(r'^\d+[\s.\-_]*', '', nombre)
     nombre = re.sub(r'\[.*?\]|\(.*?\)', '', nombre).strip()
     return nombre
+
 def cargar_directorio():
     global directorio_abierto, canciones_guardadas, nombres_canciones_guardadas
     carpeta = filedialog.askdirectory(title="Seleccionar carpeta de música")
@@ -28,7 +26,7 @@ def cargar_directorio():
                 if archivo.lower().endswith(".mp3"):
                     ruta_completa = os.path.join(ruta_actual, archivo)
                     canciones_guardadas.append(ruta_completa)
-                    nombre = get_cleaned_song_name(ruta_completa)
+                    nombre = limpiar_nombre(ruta_completa)
                     nombres_canciones_guardadas.append(nombre)
         return True
     return False
@@ -45,12 +43,16 @@ def cargar_playlist_original():
 
     playlist1 = {"original": canciones}
 
+
     try:
         if ruta_json.exists():
             with open(ruta_json, "r", encoding="utf-8") as archivo:
                 datos = json.load(archivo)
         else:
             datos = {}
+
+        if "original" in datos:
+            del datos["original"]
 
         datos.update(playlist1)
 

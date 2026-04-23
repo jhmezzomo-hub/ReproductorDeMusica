@@ -31,6 +31,8 @@ def main():
 
     estado = obtener_estado(vista)
 
+    agregar = agregar_cancion(vista)
+
     root.mainloop()
 
 if __name__ == "__main__":

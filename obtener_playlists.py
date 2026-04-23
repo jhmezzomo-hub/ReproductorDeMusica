@@ -20,7 +20,6 @@ def abrir_playlist():
     except (FileNotFoundError, json.JSONDecodeError):
         playlist.clear()
         nombre_playlist.clear()
-        guardar_playlist_en_json() # Creamos un archivo JSON vacío si no existe
 
 def guardar_playlist_en_json():
     """Función auxiliar para guardar el diccionario de playlist actual en el archivo JSON."""
@@ -30,11 +29,6 @@ def guardar_playlist_en_json():
             json.dump(playlist, archivo, indent=4, ensure_ascii=False)
     except Exception as e:
         print(f"Error al guardar la playlist en JSON: {e}")
-
-def cargar_canciones(nombre):
-    global playlist, nombre_playlist
-    if not playlist:
-        abrir_playlist()
 
 def crear_nueva_playlist(nueva_playlist):
     global playlist, nombre_playlist
@@ -59,7 +53,7 @@ def agregar_cancion_a_playlist(ruta_cancion, nombre_playlist_destino):
         print(f"La playlist '{nombre_playlist_destino}' no existe.")
         return False
 
-    if not Path(ruta_cancion).is_file():
+    if not ruta_cancion or not Path(ruta_cancion).is_file():
         print(f"La ruta de la canción '{ruta_cancion}' no es válida o el archivo no existe.")
         return False
 

@@ -7,7 +7,7 @@ from marquesina import marquesina
 import os
 from abrir_directorio import canciones_guardadas
 from aleatorio import *
-from obtener_playlists import nombre_playlist, playlist
+from obtener_playlists import agregar_cancion_a_playlist, crear_nueva_playlist
 
 reproductor = Reproductor()
 cancion_anterior = None
@@ -174,6 +174,23 @@ def loop(panel):
     loop_tg.grid(column=3, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)
     lo_tg = loop_tg
     return loop_tg
+
+def agregar_cancion(panel):
+    # Función interna para capturar los valores REALES al momento de hacer clic
+    def comando_agregar():
+        global cancion_actual, combo_playlist
+        if cancion_actual and combo_playlist:
+            destino = combo_playlist.get()
+            agregar_cancion_a_playlist(cancion_actual, destino)
+        else:
+            print("Error: No hay canción cargada o no se seleccionó playlist.")
+
+    if not combo_playlist:
+        panel.after(1000, lambda: agregar_cancion(panel))
+        return None
+    agregar = tb.Button(panel, text="Agregar", style="success.TButton", command=comando_agregar)
+    agregar.grid(column=0, row=6, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    return agregar
 
 def cargar_vista(panel, nombre="default"):
     global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
