@@ -8,6 +8,7 @@ canciones_guardadas = []
 nombres_canciones_guardadas = []
 
 def cargar_directorio():
+    global directorio_abierto, canciones_guardadas, nombres_canciones_guardadas
     carpeta = filedialog.askdirectory(title="Seleccionar carpeta de música")
 
     if carpeta:

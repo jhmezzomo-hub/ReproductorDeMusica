@@ -6,7 +6,7 @@ from obtener_playlists import playlist, nombre_playlist, abrir_playlist
 
 labels_resultados = []
 ruta = ""
-expandido = False # Variable de estado para el nombre completo
+expandido = False 
 
 def buscar_similitudes(buscador, panel_resultados, panel_musica):
     for label in panel_resultados.winfo_children():
@@ -98,9 +98,6 @@ def vista_previa(panel, panel_musica):
                 import btotones_musica
                 if btotones_musica.combo_playlist:
                     btotones_musica.combo_playlist['values'] = nombre_playlist
-                    if nombre_playlist:
-                        btotones_musica.combo_playlist.current(0)
-                
                 vista_previa(panel, panel_musica)
 
         mostrar = tb.Label(panel, text="No hay ninguna cancion cargada en este momento", bootstyle="danger", font=("Roboto", 25, "bold", "underline"), justify="center")
@@ -111,15 +108,21 @@ def vista_previa(panel, panel_musica):
 
 def opcion_playlist(panel, buscador_panel):
     import btotones_musica
-    # Agregamos state="readonly" para bloquear la escritura
+    global lista_desplegable
+
+    if not canciones_guardadas:
+        panel.after(1000, lambda: opcion_playlist(panel, buscador_panel))
+        return None
+
+    if btotones_musica.combo_playlist is not None:
+        return btotones_musica.combo_playlist
+
     lista_desplegable = tb.Combobox(panel, values=nombre_playlist, bootstyle="dark", state="readonly")
     lista_desplegable.grid(column=0, row=5, columnspan=2, sticky="nsew", padx=10, pady=10)
-    if nombre_playlist and len(nombre_playlist) > 0:
+    
+    if nombre_playlist:
         lista_desplegable.current(0)
-    
-    # Sincronizamos con la variable que usan los buscadores
+
     btotones_musica.combo_playlist = lista_desplegable
-    
-    # Al cambiar la playlist, actualizamos la vista previa del buscador
     lista_desplegable.bind("<<ComboboxSelected>>", lambda e: vista_previa(buscador_panel, panel))
     return lista_desplegable
