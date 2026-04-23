@@ -7,8 +7,24 @@ from obtener_playlists import playlist, nombre_playlist, abrir_playlist
 labels_resultados = []
 ruta = ""
 expandido = False 
+buscador =  None
 
-def buscar_similitudes(buscador, panel_resultados, panel_musica):
+def barra_busqueda(panel, panel_musica):
+    global buscador
+    buscador = tb.Entry(panel, bootstyle="info", textvariable="text")
+    buscador.pack(side="top", fill="x", padx=5, pady=5)
+
+    buscador.bind("<KeyRelease>", lambda e: buscar_similitudes(panel, panel_musica))
+    
+    # Eventos de foco para expandir/contraer
+    buscador.bind("<FocusIn>", lambda e: manejar_foco(e, panel, panel_musica, True))
+    # Usamos after para dar tiempo a que el clic en la canción se procese antes de contraer
+    buscador.bind("<FocusOut>", lambda e: panel.after(200, lambda: manejar_foco(None, panel, panel_musica, False)))
+    
+    return buscador
+
+def buscar_similitudes(panel_resultados, panel_musica):
+    global buscador
     for label in panel_resultados.winfo_children():
         if not isinstance(label, tb.Entry):
             label.destroy()
@@ -45,24 +61,11 @@ def buscar_similitudes(buscador, panel_resultados, panel_musica):
     except Exception as error:
         print(error)
 
-def manejar_foco(event, buscador, panel, panel_musica, estado):
+def manejar_foco(event, panel, panel_musica, estado):
     global expandido
     expandido = estado
     alternar_modo_compacto(estado) # True achica el reproductor, False lo agranda
-    buscar_similitudes(buscador, panel, panel_musica)
-
-def barra_busqueda(panel, panel_musica):
-    buscador = tb.Entry(panel, bootstyle="info", textvariable="text")
-    buscador.pack(side="top", fill="x", padx=5, pady=5)
-
-    buscador.bind("<KeyRelease>", lambda e: buscar_similitudes(buscador, panel, panel_musica))
-    
-    # Eventos de foco para expandir/contraer
-    buscador.bind("<FocusIn>", lambda e: manejar_foco(e, buscador, panel, panel_musica, True))
-    # Usamos after para dar tiempo a que el clic en la canción se procese antes de contraer
-    buscador.bind("<FocusOut>", lambda e: panel.after(200, lambda: manejar_foco(None, buscador, panel, panel_musica, False)))
-    
-    return buscador
+    buscar_similitudes(panel, panel_musica)
 
 def vista_previa(panel, panel_musica):
     # Limpiamos el panel para que no se dupliquen las canciones al cambiar de playlist

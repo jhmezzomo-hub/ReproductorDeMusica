@@ -175,18 +175,21 @@ def loop(panel):
     lo_tg = loop_tg
     return loop_tg
 
-def agregar_cancion(panel):
+def agregar_cancion(panel, panel_busqueda):
     # Función interna para capturar los valores REALES al momento de hacer clic
     def comando_agregar():
         global cancion_actual, combo_playlist
         if cancion_actual and combo_playlist:
             destino = combo_playlist.get()
-            agregar_cancion_a_playlist(cancion_actual, destino)
+            if agregar_cancion_a_playlist(cancion_actual, destino):
+                # Importamos aquí para evitar importación circular y refrescamos
+                import botones_buscador
+                botones_buscador.buscar_similitudes(panel_busqueda, panel)
         else:
             print("Error: No hay canción cargada o no se seleccionó playlist.")
 
     if not combo_playlist:
-        panel.after(1000, lambda: agregar_cancion(panel))
+        panel.after(1000, lambda: agregar_cancion(panel, panel_busqueda))
         return None
     agregar = tb.Button(panel, text="Agregar", style="success.TButton", command=comando_agregar)
     agregar.grid(column=0, row=6, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)

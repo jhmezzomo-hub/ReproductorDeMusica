@@ -43,7 +43,6 @@ def cargar_playlist_original():
 
     playlist1 = {"original": canciones}
 
-
     try:
         if ruta_json.exists():
             with open(ruta_json, "r", encoding="utf-8") as archivo:

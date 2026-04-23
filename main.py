@@ -1,4 +1,4 @@
-import ttkbootstrap as tb
+from pathlib import Path
 from crear_venntana import crear_ventana
 from paneles import *
 from btotones_musica import *
@@ -6,6 +6,7 @@ from botones_buscador import *
 from cargar_imagen import imagen
 from abrir_directorio import cargar_playlist_original
 from obtener_playlists import abrir_playlist
+import json
 
 def main():
     root = crear_ventana()
@@ -31,7 +32,7 @@ def main():
 
     estado = obtener_estado(vista)
 
-    agregar = agregar_cancion(vista)
+    agregar = agregar_cancion(vista, busca)
 
     root.mainloop()
 
