@@ -1,5 +1,6 @@
 import ttkbootstrap as tb
 from funciones import *
+import vlc
 from cargar_imagen import imagen
 from obtener_info import obtener_info
 from marquesina import marquesina
@@ -34,6 +35,22 @@ def actualizar_barra(panel):
             barra_progreso['value'] = posicion * 100
         panel.after(1000, lambda: actualizar_barra(panel))
 
+def obtener_estado(panel):
+    global cancion_actual, estado_loop
+    # Verificamos el estado real del reproductor VLC
+    estado_vlc = reproductor.player.get_state()
+
+    if estado_vlc == vlc.State.Ended:
+        if estado_loop:
+            # Si el loop está activo, reiniciamos la misma canción
+            if cancion_actual:
+                reproductor.reproducir(cancion_actual)
+        else:
+            # Si no hay loop, usamos la lógica de "siguiente" (respeta aleatorio)
+            ir_siguiente(panel)
+
+    panel.after(1000, lambda: obtener_estado(panel))
+
 def play(panel):
     global cancion_anterior
     def reproducir_cancion():
@@ -55,31 +72,32 @@ def stop(panel):
     frenar_bt.grid(column=1, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return frenar_bt
 
+def ir_siguiente(panel):
+    global cancion_actual, cancion_anterior
+
+    if not canciones_guardadas:
+        return
+
+    cancion_anterior = cancion_actual
+    playlist = canciones_guardadas
+
+    if not estado_aleatorio:
+        try:
+            indice = playlist.index(cancion_actual)
+            sig_indice = (indice + 1) % len(playlist)
+        except (ValueError, TypeError):
+            sig_indice = 0
+        nueva_ruta = playlist[sig_indice]
+    else:
+        nueva_ruta = reproducir_aleatorio(cancion_actual)
+
+    cargar_vista(panel, nueva_ruta)
+    reproductor.reproducir(nueva_ruta)
+    actualizar_barra(panel)
+
 def siguiente(panel):
-    def ir_siguiente():
-        global cancion_actual, cancion_anterior
-
-        cancion_anterior = cancion_actual
-
-        if not canciones_guardadas: return
-        else: playlist = canciones_guardadas
-
-        if estado_aleatorio == False:
-            try:
-                indice = playlist.index(cancion_actual)
-                sig_indice = (indice + 1) % len(playlist)
-            except (ValueError, TypeError):
-                sig_indice = 0
-            nueva_ruta = playlist[sig_indice]
-            cargar_vista(panel, nueva_ruta)
-            reproductor.reproducir(nueva_ruta)
-            actualizar_barra(panel)
-        elif estado_aleatorio:
-            nueva_ruta = reproducir_aleatorio(cancion_actual)
-            cargar_vista(panel, nueva_ruta)
-            reproductor.reproducir(nueva_ruta)
-            actualizar_barra(panel)
-    next_bt = tb.Button(panel, text="▶▶", style="info.TButton", command=ir_siguiente)
+    # El botón ahora simplemente llama a la función global ir_siguiente
+    next_bt = tb.Button(panel, text="▶▶", style="info.TButton", command=lambda: ir_siguiente(panel))
     next_bt.grid(column=4, row=4, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return next_bt
 
@@ -143,12 +161,12 @@ def loop(panel):
     def invertir():
         global cancion_actual, estado_aleatorio, estado_loop, estado_ale
 
-        estado = bool(estado_lo.get())
+        estado_loop = bool(estado_lo.get())
 
-        if estado:
+        if estado_loop:
             estado_aleatorio = False
-            if "estado_ale" in globals():
-                estado_ale.set(0)
+            if "estado_ale" in globals() and estado_ale is not None:
+                estado_ale.set(0) # Apaga el botón visual de aleatorio
 
     loop_tg = tb.Checkbutton(panel, text="↺", variable=estado_lo, bootstyle="light-round-toggle", command=invertir)
     loop_tg.grid(column=3, row=5, sticky="nswe", padx=10, pady=10, ipadx=5, ipady=5)

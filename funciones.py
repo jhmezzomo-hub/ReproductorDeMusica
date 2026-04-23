@@ -23,3 +23,12 @@ class Reproductor:
 
     def obtener_posicion(self):
         return self.player.get_position()
+
+    def cancion_sig_o_loop(self, cancion_actual, estado_loop, cancion_siguiente=None):
+        if not cancion_actual:
+            return
+        estado_vlc = self.player.get_state()
+        if estado_vlc == vlc.State.Ended and estado_loop:
+            self.reproducir(cancion_actual)
+        elif estado_vlc == vlc.State.Ended:
+            self.reproducir(cancion_siguiente)

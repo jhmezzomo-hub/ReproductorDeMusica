@@ -22,6 +22,8 @@ def main():
     barra_busca = barra_busqueda(busca, vista)
     previa = vista_previa(busca, vista)
 
+    estado = obtener_estado(vista)
+
     root.mainloop()
 
 if __name__ == "__main__":
