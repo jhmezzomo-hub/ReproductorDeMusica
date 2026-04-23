@@ -44,6 +44,7 @@ def crear_nueva_playlist(nueva_playlist):
     nombre_playlist.append(nueva_playlist)
     guardar_playlist_en_json()
     print(f"Playlist '{nueva_playlist}' creada exitosamente.")
+    abrir_playlist()
     return True
 
 def agregar_cancion_a_playlist(ruta_cancion, nombre_playlist_destino):

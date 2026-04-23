@@ -7,7 +7,7 @@ from marquesina import marquesina
 import os
 from abrir_directorio import canciones_guardadas
 from aleatorio import *
-from obtener_playlists import agregar_cancion_a_playlist, crear_nueva_playlist
+from obtener_playlists import agregar_cancion_a_playlist, crear_nueva_playlist, nombre_playlist
 
 reproductor = Reproductor()
 cancion_anterior = None
@@ -182,7 +182,6 @@ def agregar_cancion(panel, panel_busqueda):
         if cancion_actual and combo_playlist:
             destino = combo_playlist.get()
             if agregar_cancion_a_playlist(cancion_actual, destino):
-                # Importamos aquí para evitar importación circular y refrescamos
                 import botones_buscador
                 botones_buscador.buscar_similitudes(panel_busqueda, panel)
         else:
@@ -195,6 +194,43 @@ def agregar_cancion(panel, panel_busqueda):
     agregar.grid(column=0, row=6, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
     return agregar
 
+def crear_playlist(panel, panel_busqueda, panel_playlist):
+    panel_playlist.pack_forget()
+
+    if not canciones_guardadas:
+        panel.after(1000, lambda: crear_playlist(panel, panel_busqueda, panel_playlist))
+        return None
+
+    def pedir_nombre():
+        panel_playlist.pack(side="left", fill="x", padx=10, pady=10)
+        nombre_var = tb.StringVar()
+
+        entrada_nombre = tb.Entry(panel_playlist, bootstyle="info", textvariable=nombre_var)
+        entrada_nombre.grid(column=0, row=0, sticky="nsew", padx=5, pady=5, ipadx=5, ipady=5)
+
+        def obtener_nombre():
+            nombre = nombre_var.get()
+            if nombre != "":
+                if crear_nueva_playlist(nombre):
+                    if combo_playlist:
+                        # Aquí nombre_playlist es la lista global que importamos arriba
+                        combo_playlist['values'] = nombre_playlist
+                        combo_playlist.set(nombre) # Dejar seleccionada la nueva
+                    
+                    import botones_buscador
+                    botones_buscador.vista_previa(panel_busqueda, panel)
+
+            entrada_nombre.destroy()
+            aceptar.destroy()
+            panel_playlist.pack_forget()
+        
+        aceptar = tb.Button(panel_playlist, text="Aceptar", style="success.TButton", command=obtener_nombre)
+        aceptar.grid(column=0, row=1, sticky="nsew", padx=5, pady=5, ipadx=5, ipady=5)
+
+    crear = tb.Button(panel, text="Crear", style="success.TButton", command=pedir_nombre)
+    crear.grid(column=1, row=6, sticky="nsew", padx=10, pady=10, ipadx=5, ipady=5)
+    return crear
+            
 def cargar_vista(panel, nombre="default"):
     global barra_progreso, cancion_actual, current_title_label, current_artist_label, current_image_canvas
 

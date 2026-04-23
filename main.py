@@ -33,6 +33,7 @@ def main():
     estado = obtener_estado(vista)
 
     agregar = agregar_cancion(vista, busca)
+    crear = crear_playlist(vista, busca, playlists)
 
     root.mainloop()
 
