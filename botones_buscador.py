@@ -2,6 +2,7 @@ import ttkbootstrap as tb
 from pathlib import Path
 from btotones_musica import cargar_vista, alternar_modo_compacto
 from abrir_directorio import nombres_canciones_guardadas, cargar_directorio, canciones_guardadas
+from obtener_playlists import playlist, nombre_playlist, abrir_playlist
 
 labels_resultados = []
 ruta = ""
@@ -19,9 +20,15 @@ def buscar_similitudes(buscador, panel_resultados, panel_musica):
         return
 
     try:
+        import btotones_musica
+        # Obtenemos la playlist seleccionada y sus canciones desde el JSON
+        seleccionada = btotones_musica.combo_playlist.get() if btotones_musica.combo_playlist else "original"
+        canciones_permitidas = playlist.get(seleccionada, [])
+
         # Usamos zip para recorrer ruta y nombre al mismo tiempo
         for ruta_completa, nombre_corto in zip(canciones_guardadas, nombres_canciones_guardadas):
-            if entrada in nombre_corto.lower():
+            # FILTRO: El nombre debe estar en la entrada del buscador Y en la playlist del JSON
+            if entrada in nombre_corto.lower() and nombre_corto in canciones_permitidas:
                 # Si está expandido mostramos todo, si no, cortamos
                 if expandido:
                     nombre_mostrar = nombre_corto
@@ -58,22 +65,42 @@ def barra_busqueda(panel, panel_musica):
     return buscador
 
 def vista_previa(panel, panel_musica):
+    # Limpiamos el panel para que no se dupliquen las canciones al cambiar de playlist
+    for widget in panel.winfo_children():
+        if not isinstance(widget, tb.Entry):
+            widget.destroy()
+
     if nombres_canciones_guardadas:
+        import btotones_musica
+        seleccionada = btotones_musica.combo_playlist.get() if btotones_musica.combo_playlist else "original"
+        canciones_permitidas = playlist.get(seleccionada, [])
+        
+        contador = 0
         for i, (ruta_completa, nombre) in enumerate(zip(canciones_guardadas, nombres_canciones_guardadas)):
-            if i < 10:
-                # En vista previa usualmente no está enfocado, usamos el corte
+            # En vista previa usamos el nombre recortado
+            if nombre in canciones_permitidas:
+                if contador >= 10: break
+
                 nombre_mostrar = (nombre[:35] + '..') if len(nombre) > 37 else nombre
                 opcion = tb.Label(panel, text=nombre_mostrar, bootstyle="warning", font=("Roboto", 13, "bold"), cursor="hand2")
                 opcion.pack(side="top", fill="x", padx=5, pady=5)
+                
+                # Vinculamos el clic para que la canción se cargue y reproduzca
                 opcion.bind("<Button-1>", lambda e, r=ruta_completa: cargar_vista(panel_musica, r))
-            else:
-                break
+                contador += 1
     else:
         def recargar():
+            from abrir_directorio import cargar_playlist_original
             if cargar_directorio():
-                for widget in panel.winfo_children():
-                    if not isinstance(widget, tb.Entry):
-                        widget.destroy()
+                cargar_playlist_original()
+                abrir_playlist()
+                
+                import btotones_musica
+                if btotones_musica.combo_playlist:
+                    btotones_musica.combo_playlist['values'] = nombre_playlist
+                    if nombre_playlist:
+                        btotones_musica.combo_playlist.current(0)
+                
                 vista_previa(panel, panel_musica)
 
         mostrar = tb.Label(panel, text="No hay ninguna cancion cargada en este momento", bootstyle="danger", font=("Roboto", 25, "bold", "underline"), justify="center")
@@ -81,3 +108,18 @@ def vista_previa(panel, panel_musica):
 
         abrir = tb.Button(panel, text="Abrir directorio", style="primary.TButton", command=recargar)
         abrir.pack(side="top", pady=5, padx=5 , ipadx=15, ipady=15)
+
+def opcion_playlist(panel, buscador_panel):
+    import btotones_musica
+    # Agregamos state="readonly" para bloquear la escritura
+    lista_desplegable = tb.Combobox(panel, values=nombre_playlist, bootstyle="dark", state="readonly")
+    lista_desplegable.grid(column=0, row=5, columnspan=2, sticky="nsew", padx=10, pady=10)
+    if nombre_playlist and len(nombre_playlist) > 0:
+        lista_desplegable.current(0)
+    
+    # Sincronizamos con la variable que usan los buscadores
+    btotones_musica.combo_playlist = lista_desplegable
+    
+    # Al cambiar la playlist, actualizamos la vista previa del buscador
+    lista_desplegable.bind("<<ComboboxSelected>>", lambda e: vista_previa(buscador_panel, panel))
+    return lista_desplegable

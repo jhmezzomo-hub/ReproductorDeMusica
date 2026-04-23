@@ -1,6 +1,8 @@
 import os
 import re
 from tkinter import filedialog
+from pathlib import Path
+import json
 
 canciones_guardadas = []
 nombres_canciones_guardadas = []
@@ -25,3 +27,30 @@ def cargar_directorio():
                     nombres_canciones_guardadas.append(nombre)
         return True
     return False
+
+def cargar_playlist_original():
+    global nombres_canciones_guardadas
+    folder = Path(__file__).parent
+    ruta_json = folder / "playlist.json"
+
+    if not canciones_guardadas:
+        return
+    
+    canciones = nombres_canciones_guardadas
+
+    playlist1 = {"original": canciones}
+
+    try:
+        if ruta_json.exists():
+            with open(ruta_json, "r", encoding="utf-8") as archivo:
+                datos = json.load(archivo)
+        else:
+            datos = {}
+
+        datos.update(playlist1)
+
+        with open(ruta_json, "w", encoding="utf-8") as archivo:
+            json.dump(datos, archivo, indent=4, ensure_ascii=False)
+    except (FileNotFoundError, json.JSONDecodeError):
+        with open(ruta_json, "w", encoding="utf-8") as archivo:
+            json.dump(playlist1, archivo, indent=4, ensure_ascii=False)

@@ -7,6 +7,7 @@ from marquesina import marquesina
 import os
 from abrir_directorio import canciones_guardadas
 from aleatorio import *
+from obtener_playlists import nombre_playlist, playlist
 
 reproductor = Reproductor()
 cancion_anterior = None
@@ -16,6 +17,7 @@ current_title_label = None
 current_artist_label = None
 current_image_canvas = None
 estado_aleatorio = False
+combo_playlist = None
 estado_loop = False
 ale_tg = None
 lo_tg = None
