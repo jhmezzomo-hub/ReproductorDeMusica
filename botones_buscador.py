@@ -91,6 +91,10 @@ def vista_previa(panel, panel_musica):
                 # Vinculamos el clic para que la canción se cargue y reproduzca
                 opcion.bind("<Button-1>", lambda e, r=ruta_completa: cargar_vista(panel_musica, r))
                 contador += 1
+        
+        if contador == 0:
+            aviso = tb.Label(panel, text="No hay temas de esta playlist\nen esta carpeta.", bootstyle="warning", font=("Roboto", 11), justify="center")
+            aviso.pack(side="top", pady=20)
     else:
         def recargar():
             from abrir_directorio import cargar_playlist_original

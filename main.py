@@ -26,6 +26,7 @@ def main():
     random = aleatorio(vista)
     looper = loop(vista)
     lista = opcion_playlist(vista, busca)
+    vol = control_volumen(vista)
 
     barra_busca = barra_busqueda(busca, vista)
     previa = vista_previa(busca, vista)

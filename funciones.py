@@ -24,6 +24,9 @@ class Reproductor:
     def obtener_posicion(self):
         return self.player.get_position()
 
+    def set_volumen(self, volumen):
+        self.player.audio_set_volume(int(volumen))
+
     def cancion_sig_o_loop(self, cancion_actual, estado_loop, cancion_siguiente=None):
         if not cancion_actual:
             return

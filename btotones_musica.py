@@ -175,6 +175,23 @@ def loop(panel):
     lo_tg = loop_tg
     return loop_tg
 
+def control_volumen(panel):
+    def ajustar_volumen():
+        # Obtenemos el valor del spinbox y se lo mandamos al reproductor
+        valor = vol_var.get()
+        reproductor.set_volumen(valor)
+
+    vol_var = tb.IntVar(value=100) # Empezamos con volumen al máximo
+    reproductor.set_volumen(100)
+
+    # Creamos el Spinbox con rango de 0 a 100
+    vol_spin = tb.Spinbox(panel, from_=0, to=100, increment=5, textvariable=vol_var, command=ajustar_volumen, width=5, bootstyle="info")
+    vol_spin.grid(column=4, row=5, sticky="nsew", padx=10, pady=10)
+    
+    # Vincular también el teclado por si el usuario escribe el número
+    vol_spin.bind("<KeyRelease>", lambda e: ajustar_volumen())
+    return vol_spin
+
 def agregar_cancion(panel, panel_busqueda):
     # Función interna para capturar los valores REALES al momento de hacer clic
     def comando_agregar():
